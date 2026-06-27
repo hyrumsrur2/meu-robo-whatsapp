@@ -15,8 +15,12 @@ async function iniciarRobo() {
     const sock = makeWASocket({
         auth: state,
         logger: pino({ level: 'silent' }),
-        printQRInTerminal: true 
-    });
+        const sock = makeWASocket({
+    auth: state,
+    logger: pino({ level: 'silent' }),
+    printQRInTerminal: true,
+    qrTimeout: 40000 // Dá mais tempo para o QR Code carregar
+}); 
 
     if (!sock.authState.creds.registered) {
         console.log("\n=== AGUARDANDO GERAÇÃO DO QR CODE NO TERMINAL ===\n");
