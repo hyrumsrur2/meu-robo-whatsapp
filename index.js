@@ -15,13 +15,11 @@ async function iniciarRobo() {
     const sock = makeWASocket({
         auth: state,
         logger: pino({ level: 'silent' }),
-        // 1️⃣ MUDAMOS AQUI: Ativa o QR Code nativo do Baileys no terminal
         printQRInTerminal: true 
     });
 
     if (!sock.authState.creds.registered) {
-        // 2️⃣ MUDAMOS AQUI: Removeu a geração forçada por número (Pairing Code)
-        console.log("=== AGUARDANDO GERAÇÃO DO QR CODE NO TERMINAL ===");
+        console.log("\n=== AGUARDANDO GERAÇÃO DO QR CODE NO TERMINAL ===\n");
     }
 
     sock.ev.on('connection.update', (update) => {
@@ -31,7 +29,9 @@ async function iniciarRobo() {
         }
     });
 
-    // O restante do seu código (mensagens, menu, etc) continua exatamente igual abaixo...
+    sock.ev.on('creds.update', saveCreds);
+
+    sock.ev.on('messages.upsert', async (m) => {
         if (m.type !== 'notify') return;
         const mensagemRecebida = m.messages[0];
         if (!mensagemRecebida.message) return;
@@ -68,7 +68,6 @@ async function iniciarRobo() {
                               `https://maisconsultatelemedicina.com.br/indicar/7A031C30\n\n` +
                               `Se precisar de ajuda para finalizar, basta nos chamar por aqui!`
                     });
-                    // Remove do histórico para liberar o chat
                     delete historicoClientes[numeroCliente];
                 } 
                 else if (texto === '5') {
@@ -76,7 +75,6 @@ async function iniciarRobo() {
                         text: `*Escreva sua Dúvida!* será um prazer lhe ajudar 🙂👍\n\n` +
                               `_Obs: Vc será encaminhado para um atendimento humanizado!_`
                     });
-                    // Remove para que o atendente humano possa conversar sem o bot interferir
                     delete historicoClientes[numeroCliente];
                 } 
                 else {
