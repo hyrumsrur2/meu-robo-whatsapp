@@ -15,20 +15,13 @@ async function iniciarRobo() {
     const sock = makeWASocket({
         auth: state,
         logger: pino({ level: 'silent' }),
-        printQRInTerminal: false
+        // 1️⃣ MUDAMOS AQUI: Ativa o QR Code nativo do Baileys no terminal
+        printQRInTerminal: true 
     });
 
     if (!sock.authState.creds.registered) {
-        // ⚠️ COLOQUE O SEU NÚMERO DO ROBÔ ABAIXO (Ex: 55919xxxxxxxx)
-        const numeroDoRobo = "5591986327900"; 
-        
-        await delay(5000);
-        try {
-            const code = await sock.requestPairingCode(numeroDoRobo);
-            console.log(`\n🔑 CÓDIGO DE CONEXÃO DO WHATSAPP: ${code}\n`);
-        } catch (err) {
-            console.log("Erro ao gerar código de pareamento:", err);
-        }
+        // 2️⃣ MUDAMOS AQUI: Removeu a geração forçada por número (Pairing Code)
+        console.log("=== AGUARDANDO GERAÇÃO DO QR CODE NO TERMINAL ===");
     }
 
     sock.ev.on('connection.update', (update) => {
@@ -38,9 +31,7 @@ async function iniciarRobo() {
         }
     });
 
-    sock.ev.on('creds.update', saveCreds);
-
-    sock.ev.on('messages.upsert', async (m) => {
+    // O restante do seu código (mensagens, menu, etc) continua exatamente igual abaixo...
         if (m.type !== 'notify') return;
         const mensagemRecebida = m.messages[0];
         if (!mensagemRecebida.message) return;
